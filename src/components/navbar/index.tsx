@@ -4,12 +4,14 @@ import { useDarkMode } from "@/hooks/useDarkMode";
 import { useAppStore } from "@/stores/AppStore";
 import { Tab as TabType } from "@/types";
 import { EditProfileModal } from "../edit-profile-modal";
+import { LANGUAGES } from "@/utils/languages";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Props {}
 
 export const NavBar: React.FC<Props> = () => {
     const { toggleEditProfileModal, showEditProfileModal } = useAppStore();
-
+    const { data: user } = useAuth();
     return (
         <div className="bg-secondary dark:bg-dark__secondary shadow-md h-full w-16 lg:w-20 flex-col flex text-accent dark:text-dark__accent">
             <AppLogo />
@@ -26,6 +28,14 @@ export const NavBar: React.FC<Props> = () => {
                 </div>
                 <div>
                     <DarkModeButton />
+                    <NavItem
+                        Icon={
+                            <div className="text-sm font-semibold tracking-wider py-2 uppercase">
+                                {user?.language}
+                            </div>
+                        }
+                        tooltip={`Your language is ${LANGUAGES[user?.language!]}`}
+                    />
                     <NavItem
                         onClick={() => toggleEditProfileModal(true)}
                         Icon={<i className="ri-profile-line"></i>}
@@ -62,7 +72,7 @@ const NavItem = ({ Icon, tooltip, onClick }: NavItemProps) => {
             onClick={onClick}
             role="button"
             className="text-center text-2xl relative py-2 hover:bg-secondary-content 
-             dark:hover:bg-dark__secondary-content duration-200 hover:text-primary "
+             dark:hover:bg-dark__secondary-content duration-200 hover:text-primary group "
         >
             <div className="peer">{Icon}</div>
             <div
@@ -70,7 +80,7 @@ const NavItem = ({ Icon, tooltip, onClick }: NavItemProps) => {
                 role="tooltip"
                 className="absolute left-full bottom-3 ml-2 z-20 block px-3 py-2 text-sm font-medium whitespace-nowrap
                  text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm dark:bg-gray-900 opacity-0
-                  peer-hover:opacity-100 pointer-events-none"
+                  group-hover:opacity-100 pointer-events-none"
             >
                 <div className="tooltip-arrow absolute -left-2 bottom-0 z-10"></div>
                 <span>{tooltip}</span>

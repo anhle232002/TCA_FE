@@ -1,10 +1,11 @@
 import React, { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { ConversationPreview } from ".";
 
 interface Props {
     header: string;
     subheader: string;
-    onClick?: () => void;
+    link: string;
 }
 
 export const ChatsConversationPreview: React.FC<Props> = (props) => {

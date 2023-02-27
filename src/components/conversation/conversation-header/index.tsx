@@ -6,13 +6,9 @@ import React from "react";
 interface Props {}
 
 export const ConversationHeader: React.FC<Props> = () => {
-    const { data: user } = useAuth();
     const { data } = useConversation()!;
-    console.log(data);
 
-    const receiver = getReceiver(data?.conversation?.members, user?._id) || data?.user || null;
-
-    if (!receiver) return <div>asd</div>;
+    if (!data?.user) return <div>asd</div>;
 
     return (
         <div className="flex justify-between items-center text-accent dark:text-dark__accent">
@@ -26,7 +22,7 @@ export const ConversationHeader: React.FC<Props> = () => {
                 </div>
 
                 <div>
-                    <h4>{receiver?.fullName}</h4>
+                    <h4>{data.user?.fullName}</h4>
                     <p className="text-xs italic">Online</p>
                 </div>
             </div>

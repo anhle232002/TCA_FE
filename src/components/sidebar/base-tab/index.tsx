@@ -1,10 +1,9 @@
-import { ConversationPreview } from "@/components/conversation-preview";
 import React, { Component, ComponentType, FunctionComponent, ReactNode } from "react";
-import { SearchBar } from "../SearchBar";
 
 interface ConversationProps {
     header: string;
     subheader: string;
+    link: string;
 }
 
 interface Props {
@@ -22,8 +21,6 @@ export const BaseTab: React.FC<Props> = ({ datalist, children, Component }) => {
                 {datalist?.map((item) => {
                     return <Component key={item.header} {...item} />;
                 })}
-
-                <ConversationPreview header="Byrom Guittet" subheader="Dental Hygienist" />
             </div>
         </div>
     );

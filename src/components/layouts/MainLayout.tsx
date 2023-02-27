@@ -1,4 +1,5 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 import { Conversation } from "../conversation";
 import { NavBar } from "../navbar";
 import { MobileSidebar, SideBar } from "../sidebar";
@@ -16,7 +17,7 @@ export const MainLayout: React.FC<Props> = () => {
                 <MobileSidebar />
             </div>
 
-            <Conversation />
+            <Outlet></Outlet>
         </div>
     );
 };

@@ -12,16 +12,14 @@ import { SearchBar } from "../SearchBar";
 interface Props {}
 
 export const Chats: React.FC<Props> = () => {
-    const { data: user } = useAuth();
     const { selectTab } = useAppStore();
     const { data } = useConversations();
-    const navigate = useNavigate();
 
     const dataList = useMemo(() => {
         return data?.map((conversation) => {
             return {
-                onClick: () => navigate(`/cid/${conversation._id}`),
-                header: conversation.members.find((rep) => rep._id !== user?._id).fullName,
+                link: `/messages/${conversation.to._id}`,
+                header: conversation.to.fullName,
                 subheader: "Last message",
             };
         });

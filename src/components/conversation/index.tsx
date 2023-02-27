@@ -1,5 +1,5 @@
 import { useConversation } from "@/hooks/useConversation";
-import { useAppStore } from "@/stores/AppStore";
+import { useMessages } from "@/hooks/useMessages";
 import React from "react";
 import { useLocation } from "react-router-dom";
 import { ConversationContent } from "./conversation-content";
@@ -11,7 +11,18 @@ interface Props {}
 
 export const Conversation: React.FC<Props> = () => {
     const location = useLocation();
-    if (location.pathname === "/") return <NoSelectedConversation />;
+    const { data, isLoading } = useConversation()!;
+
+    console.log(data);
+
+    if (isLoading) return <div>Loading...</div>;
+
+    if (!data?.user && !isLoading)
+        return (
+            <div className="text-center text-2xl text-accent dark:text-dark__accent">
+                User you found does not exist
+            </div>
+        );
 
     return (
         <div className="flex-1 py-8 px-6">

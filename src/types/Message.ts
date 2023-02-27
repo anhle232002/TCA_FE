@@ -1,8 +1,10 @@
 export interface Message {
-    _id: string;
+    _id?: string;
     from: string;
     to: string;
-    date: string;
+    date?: string;
     body: string;
     conversationId: string;
+    translatedBody?: string;
+    shouldTranslate?: boolean;
 }

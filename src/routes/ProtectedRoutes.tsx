@@ -1,3 +1,4 @@
+import { SocketProvider } from "@/context/socketioProvider";
 import { useAuth } from "@/hooks/useAuth";
 import React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -14,8 +15,10 @@ export const ProtectedRoutes: React.FC<Props> = () => {
     if (isLoading) return <div>Loading...</div>;
 
     return (
-        <div>
-            <Outlet></Outlet>
-        </div>
+        <SocketProvider>
+            <div>
+                <Outlet></Outlet>
+            </div>
+        </SocketProvider>
     );
 };

@@ -11,12 +11,11 @@ interface Props {}
 
 export const People: React.FC<Props> = () => {
     const { selectTab } = useAppStore();
-    const { data, isLoading } = useUsers();
-    const navigate = useNavigate();
+    const { data } = useUsers();
 
     const dataList = useMemo(() => {
         return data?.map((user) => ({
-            onClick: () => navigate(`/user/${user._id}`),
+            link: `/messages/${user._id}`,
             header: user.fullName,
             subheader: user.username,
         }));
