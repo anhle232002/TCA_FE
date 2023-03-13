@@ -11,5 +11,13 @@ const getUsers = async () => {
 };
 
 export const useUsers = () => {
-    return useQuery(["users"], getUsers);
+    return useQuery(["users"], getUsers, {
+        select(data) {
+            return data?.map((user) => ({
+                link: `/messages/${user._id}`,
+                header: user.fullName,
+                subheader: user.username,
+            }));
+        },
+    });
 };

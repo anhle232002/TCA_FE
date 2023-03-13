@@ -1,43 +1,83 @@
 import { useTranslateMessages } from "@/api/translateMessage";
 import { axios } from "@/lib/axios";
+import { Conversation } from "@/types/Conversation";
 import { Message } from "@/types/Message";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 
-const getMesssages = async (conversationId: string, page: number = 1) => {
-    const { data } = await axios.get(`/conversations/${conversationId}?page=${page}`);
-
-    return data.messages as Message[];
+type GetMessagesDTO = {
+    conversationId: string;
+    page: number;
 };
 
-export const useMessages = (conversationId?: string, page: number = 1) => {
+type GetMessagesReturn = {
+    conversation: Conversation;
+    messages: Message[];
+    page: number;
+};
+
+const getMesssages = async ({ conversationId, page = 1 }: GetMessagesDTO) => {
+    const { data } = await axios.get<GetMessagesReturn>(
+        `/conversations/${conversationId}?page=${page}`
+    );
+
+    return { messages: data.messages, page: data.page };
+};
+
+export const useMessages = (conversationId?: string) => {
     const { data: user } = useAuth();
     const translateMessage = useTranslateMessages(conversationId!);
-    return useQuery(
-        ["conversation", "messages", conversationId],
-        () => getMesssages(conversationId!, page),
-        {
-            enabled: !!conversationId, // only fetch if there is a conversation id
-            select(data) {
-                const messages = data?.map((m) => ({
-                    ...m,
-                    shouldTranslate: m.shouldTranslate || false,
-                }));
-
-                return messages;
-            },
-            async onSuccess(data) {
-                if (data && data.every((m) => !m.translatedBody)) {
-                    console.log("user language is ", user?.language);
-                    const messageBodys = data.map((m) => m.body);
-                    await translateMessage.mutateAsync({
-                        messages: messageBodys,
-                        from: "auto",
-                        to: user?.language! || "en",
-                    });
-                    console.log("translating bro");
-                }
-            },
-        }
-    );
+    return useInfiniteQuery({
+        enabled: !!conversationId,
+        queryFn: ({ pageParam = 1 }) =>
+            getMesssages({ conversationId: conversationId!, page: pageParam }),
+        queryKey: ["conversation", "messages", conversationId],
+        getNextPageParam: (lastPage, allPages) => {
+            return lastPage.page && lastPage.messages.length !== 0 && allPages.length !== 0
+                ? lastPage.page + 1
+                : null;
+        },
+        select: (data) => ({
+            pages: [...data.pages].reverse(),
+            pageParams: [...data.pageParams],
+        }),
+        async onSuccess({ pages }) {
+            const messages = pages[0].messages;
+            if (pages[0] && messages.every((m) => !m.translatedBody)) {
+                const messageBodys = messages.map((m) => m.body);
+                await translateMessage.mutateAsync({
+                    messages: messageBodys,
+                    from: "auto",
+                    to: user?.language! || "en",
+                });
+            }
+        },
+    });
 };
+//       ,
+//         () => getMesssages(conversationId!, page),
+//         {
+//             enabled: !!conversationId, // only fetch if there is a conversation id
+//             select(data) {
+//                 const messages = data?.map((m) => ({
+//                     ...m,
+//                     shouldTranslate: m.shouldTranslate || false,
+//                 }));
+
+//                 return messages;
+//             },
+//             async onSuccess(data) {
+//                 if (data && data.every((m) => !m.translatedBody)) {
+//                     console.log("user language is ", user?.language);
+//                     const messageBodys = data.map((m) => m.body);
+//                     await translateMessage.mutateAsync({
+//                         messages: messageBodys,
+//                         from: "auto",
+//                         to: user?.language! || "en",
+//                     });
+//                     console.log("translating bro");
+//                 }
+//             },
+//         }
+//     );
+// };

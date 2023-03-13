@@ -7,18 +7,36 @@ import { useParams } from "react-router-dom";
 
 export const useSendMessage = (conversationId: string) => {
     const { sendMessage } = useSocket();
-    const params = useParams();
 
     return useMutation({
         mutationFn: sendMessage,
         onSuccess(data, variables, context) {
             queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
-                const newMessages = [
-                    ...prev,
+                const firstPage = [
+                    ...prev.pages[0].messages,
                     { ...data, _id: getRandomId().toString() } as Message,
                 ];
-                return newMessages;
+
+                prev.pages.shift();
+
+                return { ...prev, pages: [{ messages: firstPage, page: 1 }, ...prev.pages] };
             });
         },
+    });
+};
+
+export const onReceiveMessage = (message: Message) => {
+    const conversationId = message.conversationId;
+
+    queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
+        if (!prev) return prev;
+
+        const firstPageMessages = [...prev.pages[0].messages, message];
+
+        const newModifiedFirstPage = { messages: firstPageMessages, page: 1 };
+
+        prev.pages.shift();
+
+        return { ...prev, pages: [newModifiedFirstPage, ...prev.pages] };
     });
 };

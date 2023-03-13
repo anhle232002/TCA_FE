@@ -12,15 +12,23 @@ const getConversations = async () => {
     return data as Conversation[];
 };
 
-export const useConversations = () => {
+type UseConversationOptions = {
+    select?: (data: any) => any;
+};
+
+export const useConversations = ({ select }: UseConversationOptions) => {
     const { data: user } = useAuth();
     return useQuery(["conversations"], getConversations, {
-        select(data) {
-            return data.map((conversation) => {
+        select: (data) => {
+            const modifiedData = data.map((conversation) => {
                 const to = conversation.members.find((member) => member._id !== user?._id) as User;
 
                 return { ...conversation, to };
             });
+
+            if (select) return select(modifiedData);
+
+            return modifiedData;
         },
     });
 };

@@ -13,20 +13,20 @@ interface Props {}
 
 export const Chats: React.FC<Props> = () => {
     const { selectTab } = useAppStore();
-    const { data } = useConversations();
-
-    const dataList = useMemo(() => {
-        return data?.map((conversation) => {
-            return {
-                link: `/messages/${conversation.to._id}`,
-                header: conversation.to.fullName,
-                subheader: "Last message",
-            };
-        });
-    }, [data]);
+    const { data } = useConversations({
+        select: (conversations: any) => {
+            return conversations?.map((conversation: any) => {
+                return {
+                    link: `/messages/${conversation.to._id}`,
+                    header: conversation.to.fullName,
+                    subheader: "Last message",
+                };
+            });
+        },
+    });
 
     return (
-        <BaseTab datalist={dataList} Component={ChatsConversationPreview}>
+        <BaseTab datalist={data} Component={ChatsConversationPreview}>
             <header className="py-4 px-3">
                 <div className="flex items-center justify-between">
                     <h2 className="tracking-wide text-xl font-semibold">Chats</h2>

@@ -1,9 +1,7 @@
 import { ConversationPreview } from "@/components/conversation-preview";
-import { ChatsConversationPreview } from "@/components/conversation-preview/ChatsConversationPreview";
 import { useUsers } from "@/hooks/useUsers";
 import { useAppStore } from "@/stores/AppStore";
-import React, { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import { BaseTab } from "../base-tab";
 import { SearchBar } from "../SearchBar";
 
@@ -13,15 +11,8 @@ export const People: React.FC<Props> = () => {
     const { selectTab } = useAppStore();
     const { data } = useUsers();
 
-    const dataList = useMemo(() => {
-        return data?.map((user) => ({
-            link: `/messages/${user._id}`,
-            header: user.fullName,
-            subheader: user.username,
-        }));
-    }, data);
     return (
-        <BaseTab datalist={dataList} Component={ConversationPreview}>
+        <BaseTab datalist={data} Component={ConversationPreview}>
             <header className="py-4 px-3">
                 <div className="flex items-center justify-between">
                     <h2 className="tracking-wide text-xl font-semibold px-2">People</h2>{" "}

@@ -8,7 +8,7 @@ export const SearchBar: React.FC<Props> = ({ placeholder }) => {
             <input
                 placeholder={placeholder}
                 type="text"
-                className="bg-transparent outline-none text-sm "
+                className="bg-transparent outline-none text-sm"
             />
         </div>
     );

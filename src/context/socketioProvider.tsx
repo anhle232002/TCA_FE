@@ -1,6 +1,6 @@
+import { onReceiveMessage } from "@/api/sendMessage";
 import { queryClient } from "@/lib/react-query";
 import { Message } from "@/types/Message";
-import { getRandomId } from "@/utils/randomId";
 import storage from "@/utils/storage";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
@@ -13,6 +13,22 @@ type SocketProviderProps = {
 
 export function SocketProvider({ children }: SocketProviderProps) {
     const [socket, setSocket] = useState<Socket | null>(null);
+
+    const onReceiveMessage = (message: Message) => {
+        const conversationId = message.conversationId;
+
+        queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
+            if (!prev) return prev;
+
+            const firstPageMessages = [...prev.pages[0].messages, message];
+
+            const newModifiedFirstPage = { messages: firstPageMessages, page: 1 };
+
+            prev.pages.shift();
+
+            return { ...prev, pages: [newModifiedFirstPage, ...prev.pages] };
+        });
+    };
 
     useEffect(() => {
         const socketInstance = io("http://localhost:5000", { auth: { token: storage.getToken() } });
@@ -30,18 +46,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
     useEffect(() => {
         if (!socket) return;
 
-        socket?.on("message", (message: Message) => {
-            const conversationId = message.conversationId;
-
-            queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
-                if (!prev) return prev;
-
-                return [
-                    ...prev,
-                    { ...message, _id: getRandomId().toString(), shouldTranslate: true },
-                ];
-            });
-        });
+        socket?.on("message", onReceiveMessage);
     }, [socket]);
 
     return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;

@@ -47,11 +47,15 @@ export const useTranslateMessages = (conversationId: string) => {
         mutationFn: translateMessages,
         onSuccess(data, __, _) {
             queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
-                const translatedMessages = (<Message[]>prev).map((m: Message, index: number) => {
-                    return { ...m, translatedBody: data[index] };
-                });
+                const translatedPage = prev.pages.pop();
 
-                return translatedMessages;
+                translatedPage.messages = translatedPage.messages.map(
+                    (m: Message, index: number) => {
+                        return { ...m, translatedBody: data[index] };
+                    }
+                );
+
+                return { ...prev, pages: [...prev.pages, translatedPage] };
             });
         },
     });
