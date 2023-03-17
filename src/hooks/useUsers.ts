@@ -17,6 +17,7 @@ export const useUsers = () => {
                 link: `/messages/${user._id}`,
                 header: user.fullName,
                 subheader: user.username,
+                image: user.avatar,
             }));
         },
     });

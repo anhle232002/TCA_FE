@@ -2,7 +2,9 @@ import { lazy, Suspense } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Conversation } from "./components/conversation";
 import { NoSelectedConversation } from "./components/conversation/NoSelectedConversation";
-import { useAuth } from "./hooks/useAuth";
+import { Fallback } from "./components/fallback-content";
+import { LoadingSpinner } from "./components/loading-spinner";
+import { useDarkMode } from "./hooks/useDarkMode";
 import { ProtectedRoutes } from "./routes/ProtectedRoutes";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -11,8 +13,9 @@ const Register = lazy(() => import("./pages/Register"));
 
 function App() {
     const location = useLocation();
+    useDarkMode();
     return (
-        <Suspense fallback={<div>loading...</div>}>
+        <Suspense fallback={<Fallback />}>
             <Routes>
                 <Route element={<ProtectedRoutes />}>
                     <Route element={<HomePage />}>

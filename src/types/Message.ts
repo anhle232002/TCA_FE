@@ -6,5 +6,5 @@ export interface Message {
     body: string;
     conversationId: string;
     translatedBody?: string;
-    shouldTranslate?: boolean;
+    isNewMessage?: boolean;
 }

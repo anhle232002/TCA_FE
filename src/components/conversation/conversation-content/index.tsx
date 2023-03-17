@@ -1,6 +1,8 @@
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { useConversation } from "@/hooks/useConversation";
 import { useMessages } from "@/hooks/useMessages";
 import { useAppStore } from "@/stores/AppStore";
+import { AnimatePresence } from "framer-motion";
 import { is } from "immer/dist/internal";
 import React, { useEffect, useRef, useState } from "react";
 import { Message } from "../message";
@@ -54,28 +56,30 @@ export const ConversationContent: React.FC<Props> = () => {
         );
     }
 
-    if (isFetching && !isFetchingNextPage) return <div>Is loading....</div>;
+    if (isFetching && !isFetchingNextPage) return <LoadingSpinner />;
 
     return (
         <>
-            <div
-                onScroll={onScrollTop}
-                ref={messagesContainer}
-                className="mt-4 py-4 space-y-4 flex-1 overflow-auto"
-            >
-                {data?.pages.map((page) => {
-                    return page.messages.map((message) => {
-                        return (
-                            <Message
-                                key={message._id}
-                                {...message}
-                                isMe={isAuthUser(message.from)}
-                            />
-                        );
-                    });
-                })}
-                <div ref={scrollToBottomRef}></div>
-            </div>
+            <AnimatePresence initial={false}>
+                <div
+                    onScroll={onScrollTop}
+                    ref={messagesContainer}
+                    className="mt-4 py-4 space-y-10 flex-1 overflow-auto overflow-x-hidden"
+                >
+                    {data?.pages.map((page) => {
+                        return page.messages.map((message) => {
+                            return (
+                                <Message
+                                    key={message._id}
+                                    {...message}
+                                    isMe={isAuthUser(message.from)}
+                                />
+                            );
+                        });
+                    })}
+                    <div ref={scrollToBottomRef}></div>
+                </div>
+            </AnimatePresence>
         </>
     );
 };

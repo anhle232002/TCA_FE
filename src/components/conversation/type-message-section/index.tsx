@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useConversation } from "@/hooks/useConversation";
 import { Message } from "@/types/Message";
 import { getReceiver } from "@/utils/getReceiver";
+import { getRandomId } from "@/utils/randomId";
 import React, { FormEvent, useState } from "react";
 
 interface Props {}

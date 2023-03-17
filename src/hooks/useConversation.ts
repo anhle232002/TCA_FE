@@ -27,10 +27,8 @@ const getConversationByMembers = async (userId: string) => {
 };
 
 export const useConversation = () => {
-    const { data: user } = useAuth();
     const params = useParams();
     const userId = params.uid;
-    const translateMessage = useTranslateMessages(userId!);
 
     return useQuery(["conversation", userId], () => getConversationByMembers(userId!));
 };

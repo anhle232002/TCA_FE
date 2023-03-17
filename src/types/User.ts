@@ -3,9 +3,10 @@ export interface User {
     username?: string;
     fullName: string;
     language: string;
+    avatar: string;
 }
 export interface UserProfile {
-    fullName: string;
+    fullName?: string;
     city?: string;
     phone?: string;
     avatar?: string;

@@ -1,3 +1,4 @@
+import { Fallback } from "@/components/fallback-content";
 import { SocketProvider } from "@/context/socketioProvider";
 import { useAuth } from "@/hooks/useAuth";
 import React from "react";
@@ -12,7 +13,7 @@ export const ProtectedRoutes: React.FC<Props> = () => {
         navigate("/login");
     }
 
-    if (isLoading) return <div>Loading...</div>;
+    if (isLoading) return <Fallback />;
 
     return (
         <SocketProvider>

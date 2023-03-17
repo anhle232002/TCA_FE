@@ -27,7 +27,10 @@ export const useTranslateMessage = (messageId: string, conversationId: string) =
         mutationFn: translateMessages,
         onSuccess(data, __, _) {
             queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
-                const translatedMessages = prev.map((m: Message) => {
+                let firstPage = prev.pages.shift();
+                console.log(firstPage);
+
+                firstPage.messages = firstPage.messages.map((m: Message) => {
                     if (m._id !== messageId) return m;
 
                     return {
@@ -36,7 +39,7 @@ export const useTranslateMessage = (messageId: string, conversationId: string) =
                     };
                 });
 
-                return translatedMessages;
+                return { ...prev, pages: [firstPage, ...prev.pages] };
             });
         },
     });

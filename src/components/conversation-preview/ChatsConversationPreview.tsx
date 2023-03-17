@@ -6,6 +6,7 @@ interface Props {
     header: string;
     subheader: string;
     link: string;
+    image: string;
 }
 
 export const ChatsConversationPreview: React.FC<Props> = (props) => {

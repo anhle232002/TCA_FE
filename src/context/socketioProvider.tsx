@@ -1,6 +1,7 @@
 import { onReceiveMessage } from "@/api/sendMessage";
 import { queryClient } from "@/lib/react-query";
 import { Message } from "@/types/Message";
+import { getRandomId } from "@/utils/randomId";
 import storage from "@/utils/storage";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
@@ -16,9 +17,12 @@ export function SocketProvider({ children }: SocketProviderProps) {
 
     const onReceiveMessage = (message: Message) => {
         const conversationId = message.conversationId;
-
+        console.log(message);
         queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
             if (!prev) return prev;
+
+            message._id = getRandomId().toString();
+            message.isNewMessage = true;
 
             const firstPageMessages = [...prev.pages[0].messages, message];
 

@@ -25,7 +25,6 @@ export const useConversations = ({ select }: UseConversationOptions) => {
 
                 return { ...conversation, to };
             });
-
             if (select) return select(modifiedData);
 
             return modifiedData;

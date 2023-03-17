@@ -5,10 +5,11 @@ import { UserProfile } from "@/types/User";
 import { useMutation } from "@tanstack/react-query";
 
 type UpdateProfileDTO = {
-    fullName: string;
-    city: string;
-    describe: string;
-    phone: string;
+    fullName?: string;
+    city?: string;
+    describe?: string;
+    phone?: string;
+    avatar?: string;
 };
 
 const updateProfile = async (data: UpdateProfileDTO) => {
@@ -16,7 +17,7 @@ const updateProfile = async (data: UpdateProfileDTO) => {
 };
 
 export const useUpdateProfile = () => {
-    const { data: user } = useAuth();
+    const { data: user, refetch: refreshUserData } = useAuth();
 
     return useMutation({
         mutationFn: updateProfile,
@@ -24,6 +25,8 @@ export const useUpdateProfile = () => {
             queryClient.setQueryData<UserProfile>(["profile", user?._id], (prev) => {
                 return { ...prev, ...variables };
             });
+
+            refreshUserData();
         },
     });
 };

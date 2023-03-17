@@ -61,7 +61,7 @@ export const useMessages = (conversationId?: string) => {
 //             select(data) {
 //                 const messages = data?.map((m) => ({
 //                     ...m,
-//                     shouldTranslate: m.shouldTranslate || false,
+//                     isNewMessage: m.isNewMessage || false,
 //                 }));
 
 //                 return messages;

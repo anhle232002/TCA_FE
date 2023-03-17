@@ -14,7 +14,7 @@ export const useSendMessage = (conversationId: string) => {
             queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
                 const firstPage = [
                     ...prev.pages[0].messages,
-                    { ...data, _id: getRandomId().toString() } as Message,
+                    { ...data, _id: getRandomId().toString(), isNewMessage: true } as Message,
                 ];
 
                 prev.pages.shift();
@@ -30,6 +30,7 @@ export const onReceiveMessage = (message: Message) => {
 
     queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
         if (!prev) return prev;
+        console.log(message);
 
         const firstPageMessages = [...prev.pages[0].messages, message];
 

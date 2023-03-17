@@ -15,7 +15,7 @@ export const People: React.FC<Props> = () => {
         <BaseTab datalist={data} Component={ConversationPreview}>
             <header className="py-4 px-3">
                 <div className="flex items-center justify-between">
-                    <h2 className="tracking-wide text-xl font-semibold px-2">People</h2>{" "}
+                    <h2 className="tracking-wide text-xl font-semibold px-2">People</h2>
                     <div className="lg:hidden block">
                         <button
                             onClick={() => selectTab("")}

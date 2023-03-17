@@ -1,9 +1,9 @@
 import { useConversation } from "@/hooks/useConversation";
 import React from "react";
 import { useLocation } from "react-router-dom";
+import { Fallback } from "../fallback-content";
 import { ConversationContent } from "./conversation-content";
 import { ConversationHeader } from "./conversation-header";
-import { NoSelectedConversation } from "./NoSelectedConversation";
 import { TypeMessageSection } from "./type-message-section";
 
 interface Props {}
@@ -14,7 +14,7 @@ export const Conversation: React.FC<Props> = () => {
 
     console.log(data);
 
-    if (isLoading) return <div>Loading...</div>;
+    if (isLoading) return <Fallback />;
 
     if (!data?.user && !isLoading)
         return (

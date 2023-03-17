@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 export const useDarkMode = () => {
     const [isEnabled, setIsEnabled] = useState(!!localStorage.getItem("theme") || false);
@@ -8,7 +8,7 @@ export const useDarkMode = () => {
         localStorage.setItem("theme", value ? "dark" : "light");
     };
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const savedTheme = localStorage.getItem("theme");
 
         const enabled = typeof savedTheme !== undefined && savedTheme === "dark" ? true : false;
@@ -16,8 +16,10 @@ export const useDarkMode = () => {
         setIsEnabled(enabled);
     }, []);
 
-    useEffect(
+    useLayoutEffect(
         () => {
+            console.log(isEnabled);
+
             const className = "dark";
             const element = window.document.body;
             if (isEnabled) {
