@@ -20,7 +20,7 @@ export const MobileSidebar = () => {
     return (
         <>
             {currentTab !== "" ? (
-                <div className="fixed top-0 right-0 h-full md:hidden sm:w-[400px] w-full  block duration-200 ">
+                <div className="fixed top-0 right-0 h-full lg:hidden sm:w-[400px] w-full z-10  block duration-200 ">
                     {currentTab === "chats" && <Chats />}
                     {currentTab === "people" && <People />}
                 </div>

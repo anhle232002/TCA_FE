@@ -1,4 +1,4 @@
-import { onReceiveMessage } from "@/api/sendMessage";
+import { onConversationUpdate } from "@/hooks/useConversations";
 import { queryClient } from "@/lib/react-query";
 import { Message } from "@/types/Message";
 import { getRandomId } from "@/utils/randomId";
@@ -22,6 +22,9 @@ export function SocketProvider({ children }: SocketProviderProps) {
             if (!prev) return prev;
 
             message._id = getRandomId().toString();
+
+            onConversationUpdate(conversationId, { message, seen: [] });
+
             message.isNewMessage = true;
 
             const firstPageMessages = [...prev.pages[0].messages, message];

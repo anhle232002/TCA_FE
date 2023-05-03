@@ -105,7 +105,11 @@ export const EditProfileModal: React.FC<Props> = ({ onClose }) => {
                                     id=""
                                 >
                                     {Object.keys(LANGUAGES).map((key) => {
-                                        return <option value={key}>{LANGUAGES[key]}</option>;
+                                        return (
+                                            <option key={key} value={key}>
+                                                {LANGUAGES[key]}
+                                            </option>
+                                        );
                                     })}
                                 </select>
                             </div>

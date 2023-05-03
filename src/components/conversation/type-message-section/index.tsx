@@ -2,10 +2,9 @@ import { useSendMessage } from "@/api/sendMessage";
 import { useSocket } from "@/context/socketioProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { useConversation } from "@/hooks/useConversation";
+import { TTypingStatus } from "@/types/Conversation";
 import { Message } from "@/types/Message";
-import { getReceiver } from "@/utils/getReceiver";
-import { getRandomId } from "@/utils/randomId";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useRef, useState } from "react";
 
 interface Props {}
 
@@ -14,10 +13,14 @@ export const TypeMessageSection: React.FC<Props> = () => {
     const { data } = useConversation()!;
     const sendMessageMutation = useSendMessage(data?.conversation?._id!);
     const [messageContent, setMessageContent] = useState("");
+    const { socket } = useSocket();
+    const typingTimeout = useRef<number | null>(null);
 
     const handleSendMessage = async (e: FormEvent) => {
         try {
             e.preventDefault();
+
+            if (messageContent === "") return;
 
             const message: Message = {
                 conversationId: data?.conversation?._id!,
@@ -35,6 +38,38 @@ export const TypeMessageSection: React.FC<Props> = () => {
         }
     };
 
+    const setTypingStatus = (status: boolean) => {
+        if (!data?.conversation && !data?.conversation?._id) return;
+
+        const typingData: TTypingStatus = {
+            conversationId: data?.conversation?._id!,
+            from: user?._id!,
+            to: data?.user?._id!,
+            isTyping: status,
+        };
+
+        socket?.emit(`typing`, typingData);
+    };
+
+    const stopTyping = () => {
+        typingTimeout.current = window.setTimeout(() => {
+            setTypingStatus(false);
+            typingTimeout.current = null;
+        }, 2000);
+    };
+
+    const onTypingMessage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setMessageContent(e.target.value);
+
+        if (typingTimeout.current) {
+            clearTimeout(typingTimeout.current);
+            stopTyping();
+        } else {
+            setTypingStatus(true);
+            stopTyping();
+        }
+    };
+
     return (
         <form
             onSubmit={handleSendMessage}
@@ -45,7 +80,7 @@ export const TypeMessageSection: React.FC<Props> = () => {
                 <input
                     type="text"
                     value={messageContent}
-                    onChange={(e) => setMessageContent(e.target.value)}
+                    onChange={onTypingMessage}
                     className="outline-none text-sm w-full bg-transparent"
                     placeholder="Write a message..."
                 />

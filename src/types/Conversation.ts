@@ -13,3 +13,10 @@ export interface IConversation {
     conversation: Conversation | null;
     messages: Message[] | null;
 }
+
+export interface TTypingStatus {
+    conversationId: string;
+    from: string;
+    to: string;
+    isTyping: boolean;
+}

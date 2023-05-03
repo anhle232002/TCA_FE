@@ -12,8 +12,6 @@ export const Conversation: React.FC<Props> = () => {
     const location = useLocation();
     const { data, isLoading } = useConversation()!;
 
-    console.log(data);
-
     if (isLoading) return <Fallback />;
 
     if (!data?.user && !isLoading)

@@ -37,10 +37,12 @@ export const useMessages = (conversationId?: string) => {
                 ? lastPage.page + 1
                 : null;
         },
-        select: (data) => ({
-            pages: [...data.pages].reverse(),
-            pageParams: [...data.pageParams],
-        }),
+        select: (data) => {
+            return {
+                pages: data.pages ? [...data.pages].reverse() : [],
+                pageParams: data.pageParams ? [...data.pageParams] : [],
+            };
+        },
         async onSuccess({ pages }) {
             const messages = pages[0].messages;
             if (pages[0] && messages.every((m) => !m.translatedBody)) {

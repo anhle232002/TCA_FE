@@ -19,7 +19,7 @@ export const Chats: React.FC<Props> = () => {
                 return {
                     link: `/messages/${conversation.to._id}`,
                     header: conversation.to.fullName,
-                    subheader: "Last message",
+                    subheader: conversation.lastMessage.message.body || "No last message",
                     image: conversation.to.avatar,
                 };
             });

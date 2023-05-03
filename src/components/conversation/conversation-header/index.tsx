@@ -7,7 +7,6 @@ interface Props {}
 
 export const ConversationHeader: React.FC<Props> = () => {
     const { data } = useConversation()!;
-    console.log(data?.user);
 
     if (!data?.user) return <div>asd</div>;
 

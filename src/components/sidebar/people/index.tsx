@@ -1,7 +1,8 @@
 import { ConversationPreview } from "@/components/conversation-preview";
+import { useDebounceValue } from "@/hooks/useDebounce";
 import { useUsers } from "@/hooks/useUsers";
 import { useAppStore } from "@/stores/AppStore";
-import React from "react";
+import React, { useState } from "react";
 import { BaseTab } from "../base-tab";
 import { SearchBar } from "../SearchBar";
 
@@ -9,10 +10,12 @@ interface Props {}
 
 export const People: React.FC<Props> = () => {
     const { selectTab } = useAppStore();
-    const { data } = useUsers();
+    const [searchTerm, setSearchTerm] = useState("");
+    const { debounceValue: searchValue, debouncing } = useDebounceValue(searchTerm, 500);
+    const { data } = useUsers(searchValue);
 
     return (
-        <BaseTab datalist={data} Component={ConversationPreview}>
+        <BaseTab isLoading={debouncing} datalist={data} Component={ConversationPreview}>
             <header className="py-4 px-3">
                 <div className="flex items-center justify-between">
                     <h2 className="tracking-wide text-xl font-semibold px-2">People</h2>
@@ -26,7 +29,11 @@ export const People: React.FC<Props> = () => {
                     </div>
                 </div>
                 <div className="mt-4">
-                    <SearchBar placeholder="Search name..." />
+                    <SearchBar
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.currentTarget?.value)}
+                        placeholder="Search name..."
+                    />
                 </div>
             </header>
         </BaseTab>

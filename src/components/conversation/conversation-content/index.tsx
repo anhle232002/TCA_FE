@@ -1,11 +1,14 @@
 import { LoadingSpinner } from "@/components/loading-spinner";
+import { useSocket } from "@/context/socketioProvider";
 import { useConversation } from "@/hooks/useConversation";
 import { useMessages } from "@/hooks/useMessages";
 import { useAppStore } from "@/stores/AppStore";
-import { AnimatePresence } from "framer-motion";
+import { TTypingStatus } from "@/types/Conversation";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { is } from "immer/dist/internal";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Message } from "../message";
+import { TypingMessage } from "../typing-message";
 
 interface Props {}
 
@@ -17,7 +20,8 @@ export const ConversationContent: React.FC<Props> = () => {
     const scrollToBottomRef = useRef<HTMLDivElement>(null);
     const messagesContainer = useRef<HTMLDivElement>(null);
     const [scrollPosition, setScrollPosition] = useState(0);
-
+    const [isTyping, setIsTyping] = useState(false);
+    const { socket } = useSocket();
     const onScrollTop = async (e: any) => {
         if (e.target.scrollTop === 0 && !isFetchingNextPage && hasNextPage) {
             setScrollPosition(e.target.scrollHeight);
@@ -26,13 +30,33 @@ export const ConversationContent: React.FC<Props> = () => {
     };
 
     /**
+     * Listening to user typing
+     */
+    useEffect(() => {
+        const onUserTyping = (data: TTypingStatus) => {
+            setIsTyping(data.isTyping);
+        };
+
+        socket?.on(`typing/${conversationData?.conversation?._id}`, onUserTyping);
+
+        return () => {
+            socket?.removeListener(`typing/${conversationData?.conversation?._id}`, onUserTyping);
+        };
+    }, [conversationData?.conversation?._id]);
+
+    /**
      * Scroll down to bottom when loaded and received messages
      */
     useEffect(() => {
         if (scrollToBottomRef.current && data?.pages[0]) {
             scrollToBottomRef.current?.scrollIntoView();
+            setIsTyping(false);
         }
     }, [isInitialLoading, data?.pages[data.pages.length - 1]]);
+
+    useLayoutEffect(() => {
+        scrollToBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [isTyping]);
 
     /**
      *  maintain scroll height when loaded next page
@@ -56,29 +80,63 @@ export const ConversationContent: React.FC<Props> = () => {
         );
     }
 
-    if (isFetching && !isFetchingNextPage) return <LoadingSpinner />;
+    if (isFetching && !isFetchingNextPage)
+        return (
+            <div className="flex-1 center">
+                <LoadingSpinner />
+            </div>
+        );
 
     return (
         <>
             <AnimatePresence initial={false}>
-                <div
+                <motion.div
                     onScroll={onScrollTop}
                     ref={messagesContainer}
-                    className="mt-4 py-4 space-y-10 flex-1 overflow-auto overflow-x-hidden"
+                    className="mt-4 py-4 space-y-10 flex-1 overflow-auto overflow-x-hidden relative"
                 >
-                    {data?.pages.map((page) => {
-                        return page.messages.map((message) => {
-                            return (
-                                <Message
-                                    key={message._id}
-                                    {...message}
-                                    isMe={isAuthUser(message.from)}
-                                />
-                            );
-                        });
-                    })}
-                    <div ref={scrollToBottomRef}></div>
-                </div>
+                    <AnimatePresence initial={false}>
+                        {data?.pages.map((page) => {
+                            return page.messages.map((message) => {
+                                return (
+                                    <motion.div
+                                        key={message._id}
+                                        className="relative"
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        <Message
+                                            key={message._id}
+                                            {...message}
+                                            isMe={isAuthUser(message.from)}
+                                        />
+                                    </motion.div>
+                                );
+                            });
+                        })}
+                        {isTyping && (
+                            <motion.div
+                                key={"typing-message"}
+                                initial={{ translateY: 30, translateX: -10 }}
+                                animate={{
+                                    translateY: 0,
+                                    translateX: 0,
+                                }}
+                                transition={{ duration: 0.4, type: "spring" }}
+                                exit={{
+                                    translateY: 0,
+                                    translateX: 0,
+                                    opacity: 0,
+                                    position: "absolute",
+                                    height: 0,
+                                }}
+                            >
+                                <TypingMessage />
+                            </motion.div>
+                        )}
+
+                        <div ref={scrollToBottomRef}></div>
+                    </AnimatePresence>
+                </motion.div>
             </AnimatePresence>
         </>
     );

@@ -27,8 +27,16 @@ export const Message: React.FC<Props> = ({
     }, []);
     return (
         <motion.div
-            initial={isNewMessage && { translateY: 30, translateX: isMe ? 10 : -10 }}
-            animate={{ translateY: 0, translateX: 0 }}
+            initial={
+                isNewMessage && {
+                    translateY: 30,
+                    translateX: isMe ? 10 : -10,
+                }
+            }
+            animate={{
+                translateY: 0,
+                translateX: 0,
+            }}
             transition={{ duration: 0.6, type: "spring" }}
         >
             <div className={`flex ${isMe ? "justify-end" : ""}`}>
