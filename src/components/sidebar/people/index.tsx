@@ -15,7 +15,11 @@ export const People: React.FC<Props> = () => {
     const { data } = useUsers(searchValue);
 
     return (
-        <BaseTab isLoading={debouncing} datalist={data} Component={ConversationPreview}>
+        <BaseTab
+            isLoading={debouncing && searchTerm !== ""}
+            datalist={data}
+            Component={ConversationPreview}
+        >
             <header className="py-4 px-3">
                 <div className="flex items-center justify-between">
                     <h2 className="tracking-wide text-xl font-semibold px-2">People</h2>

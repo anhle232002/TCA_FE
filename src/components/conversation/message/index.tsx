@@ -24,7 +24,7 @@ export const Message: React.FC<Props> = ({
         if (!translatedBody && isNewMessage && !isMe) {
             mutateAsync({ messages: [body], from: "auto", to: user?.language! || "en" });
         }
-    }, []);
+    }, [isMe, isNewMessage, translatedBody, user?.language]);
     return (
         <motion.div
             initial={

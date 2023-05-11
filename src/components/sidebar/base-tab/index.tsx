@@ -29,7 +29,7 @@ export const BaseTab: React.FC<Props> = ({ datalist, children, Component, isLoad
                             return <Component key={item.header} {...item} />;
                         })
                     ) : (
-                        <div>No users</div>
+                        <div className="text-center ">Empty</div>
                     )}
                 </div>
             )}

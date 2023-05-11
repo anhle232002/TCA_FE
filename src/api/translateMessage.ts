@@ -13,13 +13,23 @@ type TranslateMessageDTO = {
 const translateMessages = async ({ messages, from, to }: TranslateMessageDTO) => {
     console.log(messages);
 
-    const { data } = await axios.post("/translate", {
+    const {
+        data: { texts },
+    } = await axios.post("/translate", {
         texts: messages,
         from,
         to,
     });
 
-    return data.texts as string;
+    const responseData: any[] = [];
+
+    messages.forEach((message, index) => {
+        responseData.push({ original: message, translated: texts[index] });
+    });
+
+    console.log("response ", responseData);
+
+    return texts as string;
 };
 
 export const useTranslateMessage = (messageId: string, conversationId: string) => {
@@ -28,7 +38,6 @@ export const useTranslateMessage = (messageId: string, conversationId: string) =
         onSuccess(data, __, _) {
             queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
                 let firstPage = prev.pages.shift();
-                console.log(firstPage);
 
                 firstPage.messages = firstPage.messages.map((m: Message) => {
                     if (m._id !== messageId) return m;
@@ -45,21 +54,41 @@ export const useTranslateMessage = (messageId: string, conversationId: string) =
     });
 };
 
-export const useTranslateMessages = (conversationId: string) => {
+export const useTranslateMessages = (conversationId: string, allPages: boolean = false) => {
     return useMutation({
         mutationFn: translateMessages,
         onSuccess(data, __, _) {
-            queryClient.setQueryData(["conversation", "messages", conversationId], (prev: any) => {
-                const translatedPage = prev.pages.pop();
+            const queryData = queryClient.getQueryData([
+                "conversation",
+                "messages",
+                conversationId,
+            ]) as any;
 
-                translatedPage.messages = translatedPage.messages.map(
-                    (m: Message, index: number) => {
-                        return { ...m, translatedBody: data[index] };
-                    }
-                );
+            if (allPages) {
+                const messagePerPage = 10;
+                <any[]>queryData.pages.forEach((page: any, pageIndex: number) => {
+                    page.messages = page.messages.map((m: Message, messageIndex: number) => {
+                        return {
+                            ...m,
+                            translatedBody: data[pageIndex * messagePerPage + messageIndex],
+                        };
+                    });
+                });
 
-                return { ...prev, pages: [...prev.pages, translatedPage] };
-            });
+                queryClient.setQueryData(["conversation", "messages", conversationId], {
+                    ...queryData,
+                });
+            } else {
+                const lastPage = queryData.pages.pop();
+
+                lastPage.messages = lastPage.messages.map((m: Message, index: number) => {
+                    return { ...m, translatedBody: data[index] };
+                });
+
+                const updatedData = { ...queryData, pages: [...queryData.pages, lastPage] };
+
+                queryClient.setQueryData(["conversation", "messages", conversationId], updatedData);
+            }
         },
     });
 };

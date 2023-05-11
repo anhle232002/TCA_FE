@@ -18,8 +18,6 @@ export const useDarkMode = () => {
 
     useLayoutEffect(
         () => {
-            console.log(isEnabled);
-
             const className = "dark";
             const element = window.document.body;
             if (isEnabled) {

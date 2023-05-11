@@ -5,21 +5,28 @@ import { User } from "@/types/User";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
 
-const getConversations = async () => {
+const getConversations = async (query?: string) => {
+    let params = {} as any;
+
+    if (query && query !== "") params["search"] = query;
+
     const {
         data: { data },
-    } = await axios.get("/conversations");
+    } = await axios.get("/conversations", { params });
 
     return data as Conversation[];
 };
 
 type UseConversationOptions = {
     select?: (data: any) => any;
+    query?: string;
 };
 
-export const useConversations = ({ select }: UseConversationOptions) => {
+export const useConversations = ({ select, query }: UseConversationOptions) => {
     const { data: user } = useAuth();
-    return useQuery(["conversations"], getConversations, {
+    const queryKey = ["conversations", query || ""];
+
+    return useQuery(queryKey, () => getConversations(query), {
         select: (data) => {
             const modifiedData = data.map((conversation) => {
                 const to = conversation.members.find((member) => member._id !== user?._id) as User;
@@ -37,7 +44,9 @@ export const useConversations = ({ select }: UseConversationOptions) => {
  * Push the latest conversation on top of the list
  */
 export const onConversationUpdate = (conversationId: string, lastMessage: any) => {
-    queryClient.setQueryData(["conversations"], (prev: any) => {
+    queryClient.setQueryData(["conversations", ""], (prev: any) => {
+        console.log(prev);
+
         const index = prev.findIndex((c: any) => c._id === conversationId);
 
         if (index !== -1) {

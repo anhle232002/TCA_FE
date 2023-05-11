@@ -33,7 +33,10 @@ export const useMessages = (conversationId?: string) => {
             getMesssages({ conversationId: conversationId!, page: pageParam }),
         queryKey: ["conversation", "messages", conversationId],
         getNextPageParam: (lastPage, allPages) => {
-            return lastPage.page && lastPage.messages.length !== 0 && allPages.length !== 0
+            return lastPage.page &&
+                lastPage.messages.length !== 0 &&
+                allPages.length !== 0 &&
+                lastPage.messages.length === 10
                 ? lastPage.page + 1
                 : null;
         },
@@ -45,6 +48,7 @@ export const useMessages = (conversationId?: string) => {
         },
         async onSuccess({ pages }) {
             const messages = pages[0].messages;
+
             if (pages[0] && messages.every((m) => !m.translatedBody)) {
                 const messageBodys = messages.map((m) => m.body);
                 await translateMessage.mutateAsync({
@@ -56,30 +60,3 @@ export const useMessages = (conversationId?: string) => {
         },
     });
 };
-//       ,
-//         () => getMesssages(conversationId!, page),
-//         {
-//             enabled: !!conversationId, // only fetch if there is a conversation id
-//             select(data) {
-//                 const messages = data?.map((m) => ({
-//                     ...m,
-//                     isNewMessage: m.isNewMessage || false,
-//                 }));
-
-//                 return messages;
-//             },
-//             async onSuccess(data) {
-//                 if (data && data.every((m) => !m.translatedBody)) {
-//                     console.log("user language is ", user?.language);
-//                     const messageBodys = data.map((m) => m.body);
-//                     await translateMessage.mutateAsync({
-//                         messages: messageBodys,
-//                         from: "auto",
-//                         to: user?.language! || "en",
-//                     });
-//                     console.log("translating bro");
-//                 }
-//             },
-//         }
-//     );
-// };

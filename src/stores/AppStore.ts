@@ -7,13 +7,13 @@ interface AppStoreState {
     currentTab: "chats" | "people" | "";
     showEditProfileModal: boolean;
     currentConversation: string;
-    authUserId: string;
+    authUserId: string | null;
 
     selectTab: (tab: Tab) => void;
     isAuthUser: (id: string) => boolean;
     selectConversation: (conversationId: string) => void;
     toggleEditProfileModal: (isActive: boolean) => void;
-    setAuthUserId: (id: string) => void;
+    setAuthUserId: (id: string | null) => void;
 }
 
 export const useAppStore = create<AppStoreState>()(
@@ -43,6 +43,7 @@ export const useAppStore = create<AppStoreState>()(
         isAuthUser(id) {
             return get().authUserId === id;
         },
+
         setAuthUserId(id) {
             set((state) => {
                 state.authUserId = id;

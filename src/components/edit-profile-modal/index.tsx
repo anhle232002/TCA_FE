@@ -31,6 +31,7 @@ export const EditProfileModal: React.FC<Props> = ({ onClose }) => {
 
     const onSubmit = async (data: IFormData) => {
         await updateProfileMutation.mutateAsync(data);
+        onClose();
     };
 
     return (

@@ -1,9 +1,12 @@
+import { useTranslateMessages } from "@/api/translateMessage";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { useSocket } from "@/context/socketioProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { useConversation } from "@/hooks/useConversation";
 import { useMessages } from "@/hooks/useMessages";
 import { useAppStore } from "@/stores/AppStore";
 import { TTypingStatus } from "@/types/Conversation";
+import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { is } from "immer/dist/internal";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -14,6 +17,7 @@ interface Props {}
 
 export const ConversationContent: React.FC<Props> = () => {
     const { isAuthUser } = useAppStore();
+    const { data: user } = useAuth();
     const { data: conversationData } = useConversation()!;
     const { data, isFetching, isFetchingNextPage, hasNextPage, fetchNextPage, isInitialLoading } =
         useMessages(conversationData?.conversation?._id);
@@ -22,12 +26,39 @@ export const ConversationContent: React.FC<Props> = () => {
     const [scrollPosition, setScrollPosition] = useState(0);
     const [isTyping, setIsTyping] = useState(false);
     const { socket } = useSocket();
+    const translateMessagesMutation = useTranslateMessages(
+        conversationData?.conversation?._id!,
+        true
+    );
+
+    const queryClient = useQueryClient();
+    console.log("data", data);
+
     const onScrollTop = async (e: any) => {
         if (e.target.scrollTop === 0 && !isFetchingNextPage && hasNextPage) {
             setScrollPosition(e.target.scrollHeight);
             await fetchNextPage();
         }
     };
+
+    useEffect(() => {
+        if (data && data.pages.length !== 0) {
+            const queryData = queryClient.getQueryData([
+                "conversation",
+                "messages",
+                conversationData?.conversation?._id!,
+            ]) as any;
+            const pagesData = queryData.pages
+                .map((page: any) => page.messages.map((message: any) => message.body))
+                .flat();
+
+            translateMessagesMutation.mutateAsync({
+                messages: pagesData,
+                from: "auto",
+                to: user?.language! || "en",
+            });
+        }
+    }, [user?.language]);
 
     /**
      * Listening to user typing

@@ -1,11 +1,8 @@
-import { ConversationPreview } from "@/components/conversation-preview";
 import { ChatsConversationPreview } from "@/components/conversation-preview/ChatsConversationPreview";
-import { useAuth } from "@/hooks/useAuth";
 import { useConversations } from "@/hooks/useConversations";
+import { useDebounceValue } from "@/hooks/useDebounce";
 import { useAppStore } from "@/stores/AppStore";
-import { Conversation } from "@/types/Conversation";
-import React, { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import { BaseTab } from "../base-tab";
 import { SearchBar } from "../SearchBar";
 
@@ -13,6 +10,8 @@ interface Props {}
 
 export const Chats: React.FC<Props> = () => {
     const { selectTab } = useAppStore();
+    const [searchTerm, setSearchTerm] = useState("");
+    const { debounceValue: searchValue, debouncing } = useDebounceValue(searchTerm, 500);
     const { data } = useConversations({
         select: (conversations: any) => {
             return conversations?.map((conversation: any) => {
@@ -24,10 +23,16 @@ export const Chats: React.FC<Props> = () => {
                 };
             });
         },
+
+        query: searchValue,
     });
 
     return (
-        <BaseTab datalist={data} Component={ChatsConversationPreview}>
+        <BaseTab
+            isLoading={debouncing && searchTerm !== ""}
+            datalist={data}
+            Component={ChatsConversationPreview}
+        >
             <header className="py-4 px-3">
                 <div className="flex items-center justify-between">
                     <h2 className="tracking-wide text-xl font-semibold">Chats</h2>
@@ -41,7 +46,10 @@ export const Chats: React.FC<Props> = () => {
                     </div>
                 </div>
                 <div className="mt-4">
-                    <SearchBar placeholder="Search chats..." />
+                    <SearchBar
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search chats..."
+                    />
                 </div>
             </header>
         </BaseTab>

@@ -6,12 +6,21 @@ import { Tab as TabType } from "@/types";
 import { EditProfileModal } from "../edit-profile-modal";
 import { LANGUAGES } from "@/utils/languages";
 import { useAuth } from "@/hooks/useAuth";
+import { useLogout } from "@/api/logout";
+import { useNavigate } from "react-router-dom";
 
 interface Props {}
 
 export const NavBar: React.FC<Props> = () => {
     const { toggleEditProfileModal, showEditProfileModal } = useAppStore();
     const { data: user } = useAuth();
+    const logoutMutation = useLogout();
+    const navigate = useNavigate();
+    const handleLogout = async () => {
+        await logoutMutation.mutateAsync();
+
+        navigate("/login");
+    };
     return (
         <div className="bg-secondary dark:bg-dark__secondary shadow-md h-full w-16 lg:w-20 flex-col flex text-accent dark:text-dark__accent">
             <AppLogo />
@@ -42,7 +51,11 @@ export const NavBar: React.FC<Props> = () => {
                         tooltip={"Profile"}
                     />
                     <NavItem Icon={<i className="ri-settings-3-line"></i>} tooltip={"Settings"} />
-                    <NavItem Icon={<i className="ri-logout-box-line"></i>} tooltip={"Log out"} />
+                    <NavItem
+                        onClick={handleLogout}
+                        Icon={<i className="ri-logout-box-line"></i>}
+                        tooltip={"Log out"}
+                    />
 
                     {showEditProfileModal && (
                         <EditProfileModal onClose={() => toggleEditProfileModal(false)} />
